@@ -9,7 +9,7 @@ Comments can also be across several lines
 SQL does not care about white space or capitalisation but you should!
 */
 -- simplest statement, bring back all data from a table
-SELECT 
+SELECT
 	*
 FROM
 	PatientStay;
@@ -21,9 +21,10 @@ SELECT
 	PatientId
 	, Tariff
 	, Ward
+	, AdmittedDate
 	, Hospital
 FROM
-	PatientStay;
+	PatientStay as ps;
 
 /*
 Using a table alias (ps in the example below) is good practice and helps in a few ways 
@@ -45,11 +46,21 @@ Note: we can also AND and OR clauses
 SELECT
 	ps.PatientId
 	, ps.AdmittedDate
+	, ps.DischargeDate
+	, DATEADD (MONTH, 3 , ps.DischargeDate) AS AppointmentDate
+	, DATEADD (week, -2, ps.AdmittedDate) as ReminderDate
+	, DATEDIFF(day, ps.AdmittedDate, ps.DischargeDate) as LengthOfStay
 	, ps.Hospital
 	, ps.Ward
 	, ps.Tariff
 FROM
-	PatientStay ps;
+	PatientStay ps
+WHERE ps.Hospital IN ('Kingston', 'PRUH')
+ORDER BY ps.AdmittedDate ASC, ps.Tariff DESC
+
+--SELECT DATEADD(Month , 3, '2022-09-12') as Result
+
+
 
 /*
 some alternative WHERE clauses.  Try these out
@@ -74,7 +85,7 @@ FROM
 	PatientStay ps
 WHERE
 	ps.Hospital IN ('Kingston', 'PRUH');
-	--WHERE ps.Hospital LIKE 'Kin%'
+--WHERE ps.Hospital LIKE 'Kin%'
 
 /*
 Sort: by the values of one or more columns with the ORDER BY clause
@@ -131,7 +142,7 @@ Aggregate is to get a single result from a set of numbers
 Aggregation functions include SUM() and COUNT(*) but also MIN(), MAX(), AVERAGE()..
 We can group by at whatever level of aggregation we need and calculate several aggregations
 */
-	
+
 -- Aggregate over the entire dataset
 SELECT
 	COUNT(*) AS NumberOfPatients
@@ -193,7 +204,7 @@ SELECT
 	*
 FROM
 	PatientStay ps
-JOIN DimHospital h ON
+	JOIN DimHospital h ON
 	ps.Hospital = h.Hospital;
 
 /*
@@ -207,5 +218,5 @@ SELECT
 	, h.HospitalSize
 FROM
 	PatientStay ps
-JOIN DimHospital h ON
+	JOIN DimHospital h ON
 	ps.Hospital = h.Hospital;
